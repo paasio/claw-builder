@@ -9,7 +9,9 @@
     "express",
     "nats",
     "temp",
-    "wrench"
+    "wrench",
+    "node-uuid",
+    "socket.io-client"
   ],
   "engine": "node >= 0.6.x",
   "scripts": {
