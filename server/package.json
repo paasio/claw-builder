@@ -4,6 +4,7 @@
   "description": "A droplet storage service drop Cloud Foundry",
   "author": "Ken Robertson <ken@paas.io>",
   "dependencies": [
+    "async",
     "socket.io",
     "coffee-script",
     "express",
@@ -11,7 +12,8 @@
     "temp",
     "wrench",
     "node-uuid",
-    "socket.io-client"
+    "socket.io-client",
+    "knox"
   ],
   "engine": "node >= 0.6.x",
   "scripts": {

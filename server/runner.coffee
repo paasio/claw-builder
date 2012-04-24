@@ -1,5 +1,5 @@
-fs    = require('fs')
-spawn = require('child_process').spawn
+fs           = require('fs')
+spawn        = require('child_process').spawn
 EventEmitter = require('events').EventEmitter;
 
 class Runner extends EventEmitter
