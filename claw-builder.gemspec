@@ -14,6 +14,8 @@ Gem::Specification.new do |gem|
 
   gem.files = Dir["**/*"].select { |d| d =~ %r{^(README|bin/|ext/|lib/)} }
 
-  gem.add_dependency "rest-client",    "~> 1.6.7"
-  gem.add_dependency "thor",           "~> 0.14.6"
+  gem.add_dependency "rest-client",     "~> 1.6.7"
+  gem.add_dependency "socketio-client", "~> 0.0.2"
+  gem.add_dependency "thor",            "~> 0.14.6"
+  gem.add_dependency "json"
 end

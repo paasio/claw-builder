@@ -26,7 +26,6 @@ class Builder extends EventEmitter
     @s3_path = "#{@spec.name}/#{@spec.name}-#{@spec.version}.tar.gz"
 
   process: ->
-    console.log @spec.sources
     if @spec.sources
       @_downloadSources()
     else
@@ -34,9 +33,9 @@ class Builder extends EventEmitter
 
   _downloadSources: ->
     async.forEach(@spec.sources, (source, clbk) =>
+      this.emit 'data', "Downloading #{source.url}\n"
       @_downloadFile(source, clbk)
     , (err) =>
-      console.log 'done?'
       if err
         @_finish(false)
       else
@@ -44,7 +43,6 @@ class Builder extends EventEmitter
     )
 
   _runBuild: ->
-    console.log 'building...'
     log = temp.path {suffix:'.log'}
     runner = createRunner @spec.build_script,
       {
@@ -83,7 +81,6 @@ class Builder extends EventEmitter
       if code == 0
         @s3_client.putFile @packageFilename, @s3_path, (err,res) =>
           @output.package_url = @s3_client.url(@s3_path)
-          console.log "URL: #{@s3_client.url(@s3_path)}"
           @_finish(true)
     runner.run()
 
@@ -100,7 +97,6 @@ class Builder extends EventEmitter
       this.emit 'data', data
 
   _downloadFile: (source, cb) ->
-    console.log "downloading #{source.url}"
     parsed_url = url.parse(source.url)
     options = {
       host: parsed_url.host,

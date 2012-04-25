@@ -3,6 +3,7 @@ require 'yaml'
 
 require 'rest_client'
 require 'thor'
+require 'SocketIO'
 
 require 'claw/builder'
 require 'claw/builder/package_formula'
@@ -22,8 +23,8 @@ Build a package using the FORMULA file given.
     # load the formula
     Dir.chdir File.dirname(File.expand_path(formula))
     $:.unshift File.expand_path('.')
-    load formula
-    klass = File.read(formula)[/class (\w+)/, 1]
+    load File.basename(formula)
+    klass = File.read(File.basename(formula))[/class (\w+)/, 1]
     spec = eval(klass).to_spec
 
     # create build manifest
@@ -37,10 +38,32 @@ Build a package using the FORMULA file given.
     # initiate the build
     puts ">> Uploading code for build"
     res = RestClient.post "http://localhost:8080/build", manifest
-    puts "R: #{res.inspect}"
+    res = JSON.parse(res)
 
-    puts ">> Building"
-    puts ">> Build complete"
+    puts ">> Tailing build..."
+    done_building = false
+    client = SocketIO.connect(res['url'], :sync => true) do
+      before_start do
+        on_event('update') { |data| print data.first['data'] }
+        on_event('complete') do |data|
+          done_building = true
+          if data.first['success']
+            puts ">> Build complete"
+            puts "   Build available from #{data.first['package_url']}"
+          else
+            puts ">> Build FAILED!"
+          end
+        end
+      end
+      after_start do
+        emit("subscribe", { 'build' => res['channel'] })
+      end
+    end
+
+    loop do
+      break if done_building
+      sleep 0.5
+    end
   rescue Interrupt
     error "Aborted by user"
   rescue Errno::EPIPE

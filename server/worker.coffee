@@ -6,7 +6,7 @@ app           = require('express').createServer()
 io            = require('socket.io').listen(app)
 createBuilder = require('./builder')
 
-#local_address = null
+local_address = "localhost"
 #require('dns').lookup require('os').hostname(), (err, add, fam) ->
 #  local_address = add
 
@@ -15,8 +15,8 @@ build_running = false
 
 app.listen 8081
 
-app.get '/', (req,res) ->
-  res.sendfile __dirname+'/index.html'
+nats.subscribe 'claw.builder.discover', ->
+  nats.publish 'claw.builder.announce', JSON.stringify({host:"#{local_address}:8081"})
 
 nats.subscribe "claw.builder.worker", (msg,reply) ->
   return if build_running
@@ -38,14 +38,14 @@ nats.subscribe "claw.builder.worker", (msg,reply) ->
 
   reply_message = {
     task_id: message.task_id
-    url: "http://localhost:8081"
+    host: "#{local_address}:8081"
   }
-  console.log 'woot'
   nats.publish reply, JSON.stringify(reply_message)
 
 io.sockets.on 'connection', (socket) ->
-  socket.emit 'update', { data: "hello\n" }
   socket.on 'process', (data) ->
     if BUILDS[data.task_id]
       build_running = true
       BUILDS[data.task_id].process()
+
+nats.publish 'claw.builder.announce', JSON.stringify({host:"#{local_address}:8081"})
