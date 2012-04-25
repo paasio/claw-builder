@@ -79,6 +79,7 @@ class Builder extends EventEmitter
       if path.existsSync(log)
         @output.packaging_log = fs.readFileSync(log).toString()
       if code == 0
+        this.emit 'data', "Uploading to S3...\n"
         @s3_client.putFile @packageFilename, @s3_path, (err,res) =>
           @output.package_url = @s3_client.url(@s3_path)
           @_finish(true)
