@@ -12,12 +12,17 @@ createRunner = require('./runner')
 class Builder extends EventEmitter
   constructor: (@spec) ->
     @output = {}
+
+    # file info
     @workingDirectory = temp.mkdirSync('working')
     @packageDirectory = temp.mkdirSync('package')
     @packageFilename = "#{@packageDirectory}/#{@spec.name}-#{@spec.version}.tar.gz"
+
+    # sources seems to not be an array if there is only one element
     if @spec.sources not instanceof Array
       @spec.sources = [ @spec.sources ]
 
+    # setup s3 client
     @s3_client = knox.createClient({
       key: process.env.S3_KEY,
       secret: process.env.S3_SECRET,
@@ -32,6 +37,7 @@ class Builder extends EventEmitter
       @_runBuild()
 
   _downloadSources: ->
+    # download each source
     async.forEach(@spec.sources, (source, clbk) =>
       this.emit 'data', "Downloading #{source.url}\n"
       @_downloadFile(source, clbk)
@@ -43,8 +49,10 @@ class Builder extends EventEmitter
     )
 
   _runBuild: ->
+    # execute build
     log = temp.path {suffix:'.log'}
-    runner = createRunner @spec.build_script,
+    # always ensure set -e/-x
+    runner = createRunner "set -e\nset -x\n#{@spec.build_script}",
       {
         log: log,
         cwd: @workingDirectory,
@@ -64,6 +72,7 @@ class Builder extends EventEmitter
     runner.run()
 
   _runPackaging: ->
+    # package it up
     log = temp.path {suffix:'.log'}
     runner = createRunner "set -x\ntar czvf ${TEMP_PACKAGE_FILE} .",
       {
@@ -79,6 +88,7 @@ class Builder extends EventEmitter
       if path.existsSync(log)
         @output.packaging_log = fs.readFileSync(log).toString()
       if code == 0
+        # send it to s3 if it exited ok
         this.emit 'data', "Uploading to S3...\n"
         @s3_client.putFile @packageFilename, @s3_path, (err,res) =>
           @output.package_url = @s3_client.url(@s3_path)
@@ -86,12 +96,14 @@ class Builder extends EventEmitter
     runner.run()
 
   _finish: (success) ->
+    # cleanup and emit we're done
     wrench.rmdirSyncRecursive @workingDirectory
     wrench.rmdirSyncRecursive @packageDirectory
     @output.success = success
     this.emit 'done', @output
 
   _setupRunner: (runner) ->
+    # setup piping of data upstream
     runner.on 'stdout', (data) =>
       this.emit 'data', data
     runner.on 'stderr', (data) =>
