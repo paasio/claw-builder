@@ -13,7 +13,10 @@
     "wrench",
     "node-uuid",
     "socket.io-client",
-    "knox"
+    "knox",
+    "jqtpl",
+    "redis",
+    "hiredis"
   ],
   "engine": "node >= 0.6.x",
   "scripts": {

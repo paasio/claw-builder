@@ -1,0 +1,28 @@
+body {
+  background-image: url(/images/pattern.png);
+  padding-top: 60px;
+}
+
+code {
+  color: #333333;
+  background-color: #fee9cc;
+  padding: 1px 3px;
+  border: none;
+}
+
+.main-points .row { margin-bottom: 20px; }
+.mtb { margin-top: 18px; }
+.mtbh { margin-top: 9px; }
+.table-bordered { background-color: #fff; }
+.fr { float: right; }
+.fl { float: left; }
+
+.page-header {
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #cccccc;
+}
+
+footer {
+  width: 940px;
+}
