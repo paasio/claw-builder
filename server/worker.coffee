@@ -35,7 +35,9 @@ nats.subscribe "claw.builder.worker", (msg,reply) ->
     complete_message = {
       task_id: message.task_id,
       package_url: output.package_url,
-      success: output.success
+      success: output.success,
+      checksums: output.checksums,
+      error_message: output.error_message
     }
     io.sockets.emit 'complete', complete_message
 

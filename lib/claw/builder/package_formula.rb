@@ -28,6 +28,11 @@ class PackageFormula
       @spec[:included_files]
     end
 
+    def noarch(val=true)
+      @spec[:noarch] = val
+      @spec[:noarch]
+    end
+
     def build
       @spec[:build_script] = yield if block_given?
       @spec[:build_script]
@@ -52,7 +57,8 @@ class PackageFormula
         :version => '0.0.1',
         :sources => [],
         :dependencies => [],
-        :included_files => []
+        :included_files => [],
+        :noarch => false
       }
     end
 

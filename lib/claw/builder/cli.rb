@@ -37,7 +37,7 @@ Build a package using the FORMULA file given.
 
     # initiate the build
     puts ">> Uploading code for build"
-    res = RestClient.post "http://localhost:8080/build", manifest
+    res = RestClient.post "http://localhost:8080/build", manifest.to_json, :content_type => :json, :accept => :json
     res = JSON.parse(res)
 
     puts ">> Tailing build..."
@@ -50,8 +50,17 @@ Build a package using the FORMULA file given.
           if data.first['success']
             puts ">> Build complete"
             puts "   Build available from #{data.first['package_url']}"
+            if data.first['checksums']
+              puts "   Checksums:"
+              data.first['checksums'].keys.sort.each do |algo|
+                puts "#{algo.upcase.rjust(12)}: #{data.first['checksums'][algo]}"
+              end
+            end
           else
             puts ">> Build FAILED!"
+            if data.first['error_message']
+              puts "   Error: #{data.first['error_message']}"
+            end
           end
         end
       end
