@@ -116,9 +116,10 @@ capabilities:
                                      #  this is mainly useful if downloading
                                      #  precompiled binaries and repacking them
 
-      noarch true  # normally, will package as name-version-arch.tar.gz
-                   # this optional will change it to name-version-all.tar.gz
-                   # it is intended if the packaging is arch-independent
+      noarch  # normally, will package as name-version-arch.tar.gz
+              # this optional will change it to name-version-all.tar.gz
+              # it is intended if the packaging is arch-independent
+              # can optional pass true/false to alter
 
       depends 'apache2', :version => '2.2.4' # TODO
       depends 'mysqlclient' # TODO, gets latest
@@ -150,3 +151,20 @@ capabilities:
         }
       end
     end
+
+Formulas also support inheritance and overriding options from the base.  Currently,
+they can't remove things already set like sources ot dependencies, but can add to
+or alter single value settings like name, version, noarch.
+
+    require 'php5'
+    class Php54 < Php5
+      name 'php54'
+      version '5.4.0+1'
+
+      build do
+        ...
+      end
+    end
+
+Inheritance would make more sense when defining a base formula and then branching
+from it rather than overriding.
