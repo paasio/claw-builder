@@ -36,7 +36,7 @@ Build a package using the FORMULA file given.
     end
 
     # initiate the build
-    puts ">> Uploading code for build"
+    puts ">> Uploading build manifest"
     res = RestClient.post "http://localhost:8080/build", manifest.to_json, :content_type => :json, :accept => :json
     res = JSON.parse(res)
 
