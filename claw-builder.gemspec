@@ -18,4 +18,6 @@ Gem::Specification.new do |gem|
   gem.add_dependency "socketio-client", "~> 0.0.2"
   gem.add_dependency "thor",            "~> 0.14.6"
   gem.add_dependency "json"
+  
+  gem.add_development_dependency "rake"
 end
