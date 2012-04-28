@@ -25,7 +25,7 @@ class Builder extends EventEmitter
     @workingDirectory = temp.mkdirSync('working')
     @packageDirectory = temp.mkdirSync('package')
     @packageBaseName  = "#{@spec.name}-#{@spec.version}-#{@arch}.tar.gz"
-    @packageFilename  = "#{@packageDirectory}/#{@packageBaseName}"
+    @packageFilename  = temp.path({suffix: '.tar.gz'});
 
     # setup s3 client
     @s3_client = knox.createClient({
