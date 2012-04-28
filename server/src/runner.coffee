@@ -2,6 +2,14 @@ fs           = require('fs')
 spawn        = require('child_process').spawn
 EventEmitter = require('events').EventEmitter;
 
+merge = (options, overrides) ->
+  extend (extend {}, options), overrides
+
+extend = exports.extend = (object, properties) ->
+  for key, val of properties
+    object[key] = val
+  object
+
 class Runner extends EventEmitter
   constructor: (@script, @options) ->
     @options = {} if !@options
@@ -9,7 +17,7 @@ class Runner extends EventEmitter
   run: () ->
     @runner = spawn 'bash', ['-c', @script], {
         cwd: @options.cwd || __dirname
-        env: @options.env || {}
+        env: merge(process.env, @options.env)
       }
 
     if @options.log
