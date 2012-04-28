@@ -106,7 +106,7 @@ class Builder extends EventEmitter
         # generate checksums
         this.emit 'data', "Generating checksums...\n"
         @output.checksums = {}
-        async.forEach(['md5','sha1','sha256'], (algo,cb) =>
+        async.forEachSeries(['md5','sha1','sha256'], (algo,cb) =>
           @_checksumFile @packageFilename, algo, (c) =>
             @output.checksums[algo] = c
             cb()
@@ -139,7 +139,7 @@ class Builder extends EventEmitter
     options = {
       host: parsed_url.host,
       port: parsed_url.port || 80
-      path: parsed_url.pathname
+      path: parsed_url.path
     }
 
     filename = source.name || parsed_url.pathname.split('/').pop()
@@ -152,7 +152,7 @@ class Builder extends EventEmitter
 
   _checksumFile: (path,algo,cb) ->
     hash = crypto.createHash algo
-    file = fs.createReadStream(path)
+    file = fs.createReadStream path
     file.on 'data', (data) =>
       hash.update data
     file.on 'end', =>
