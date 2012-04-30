@@ -79,6 +79,8 @@ Build a package using the FORMULA file given.
     error "Aborted by user"
   rescue Errno::EPIPE
     error "Could not connect to build server: #{server}"
+  rescue Errno::ECONNREFUSED
+    error "Could not connect to build server: #{server}"
   end
 
 private
