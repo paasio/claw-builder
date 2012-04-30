@@ -15,10 +15,12 @@ Build a package using the FORMULA file given.
 
   DESC
 
+  method_option :server, :aliases => "-s", :desc => "the host:port of the build server"
+
   def build(formula)
     error("Formula file doesn't exist") unless File.exists?(formula)
 
-    server  = ENV["MAKE_SERVER"] || "http://localhost:8080"
+    server = options[:server] || '127.0.0.1:8080'
 
     # load the formula
     Dir.chdir File.dirname(File.expand_path(formula))
@@ -37,7 +39,7 @@ Build a package using the FORMULA file given.
 
     # initiate the build
     puts ">> Uploading build manifest"
-    res = RestClient.post "http://localhost:8080/build", manifest.to_json, :content_type => :json, :accept => :json
+    res = RestClient.post "http://#{server}/build", manifest.to_json, :content_type => :json, :accept => :json
     res = JSON.parse(res)
 
     puts ">> Tailing build..."
