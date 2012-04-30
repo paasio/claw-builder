@@ -106,17 +106,21 @@ class Builder extends EventEmitter
         # generate checksums
         this.emit 'data', "Generating checksums...\n"
         @output.checksums = {}
-        async.forEachSeries(['md5','sha1','sha256'], (algo,cb) =>
-          @_checksumFile @packageFilename, algo, (c) =>
-            @output.checksums[algo] = c
-            cb()
-        , =>
-          # send it to s3 if it exited ok
-          this.emit 'data', "Uploading to S3...\n"
-          @s3_client.putFile @packageFilename, @s3_path, (err,res) =>
-            @output.package_url = @s3_client.url(@s3_path)
-            @_finish(true)
-        )
+        # this seems dumb, but was experincing issues with
+        # timing here and checking the checkums raising a EBADFD
+        setTimeout( =>
+          async.forEachSeries(['md5','sha1','sha256'], (algo,cb) =>
+            @_checksumFile @packageFilename, algo, (c) =>
+              @output.checksums[algo] = c
+              cb()
+          , =>
+            # send it to s3 if it exited ok
+            this.emit 'data', "Uploading to S3...\n"
+            @s3_client.putFile @packageFilename, @s3_path, (err,res) =>
+              @output.package_url = @s3_client.url(@s3_path)
+              @_finish(true)
+          )
+        , 100)
     runner.run()
 
   _finish: (success, err) ->
