@@ -8,8 +8,8 @@ createBuilder = require('./builder')
 jshashtable   = require('./support/jshashtable')
 
 local_address = "localhost"
-#require('dns').lookup require('os').hostname(), (err, add, fam) ->
-#  local_address = add
+require('dns').lookup require('os').hostname(), (err, add, fam) ->
+  local_address = add
 
 # some basic globals
 BUILDS = new jshashtable.Hashtable()
