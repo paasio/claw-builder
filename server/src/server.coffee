@@ -83,7 +83,7 @@ app.post '/build', (req,res) ->
 
   nats.request 'claw.builder.worker', JSON.stringify(message), {max:1}, (reply_json) ->
     reply = JSON.parse(reply_json)
-    res.send({ url: "http://localhost:8080", channel: task_id })
+    res.send({ url: "http://#{req.headers.host}", channel: task_id })
     
     task.host = reply.host
     task.state = 'running'
