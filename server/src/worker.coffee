@@ -8,8 +8,6 @@ createBuilder = require('./builder')
 jshashtable   = require('./support/jshashtable')
 
 local_address = "localhost"
-require('dns').lookup require('os').hostname(), (err, add, fam) ->
-  local_address = add
 
 # some basic globals
 BUILDS = new jshashtable.Hashtable()
@@ -64,5 +62,7 @@ io.sockets.on 'connection', (socket) ->
     builder = BUILDS.get data.task_id
     builder.process() if builder
 
-# at the end, announce we're up
-nats.publish 'claw.builder.announce', JSON.stringify({host:"#{local_address}:8081"})
+# at the end, look up our IP address and then announce availability
+require('dns').lookup require('os').hostname(), (err, add, fam) ->
+  local_address = add
+  nats.publish 'claw.builder.announce', JSON.stringify({host:"#{local_address}:8081"})
